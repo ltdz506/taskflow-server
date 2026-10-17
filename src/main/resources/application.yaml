@@ -1,3 +1,48 @@
 spring:
   application:
     name: taskflow-server
+
+  # ① 数据库连接（MySQL 8 / 本地 taskflow 库）
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/taskflow?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: "123"
+
+  # ② 文件上传上限（Spring 默认仅 1MB，必须放大到设置项允许的最大值）
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 520MB
+
+  # ③ 时间返回格式（PRD 约定 yyyy-MM-dd HH:mm:ss）
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+# ④ 服务端口
+server:
+  port: 8080
+
+# ⑤ MyBatis
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: org.ltdz.taskflow.model.po
+  configuration:
+    map-underscore-to-camel-case: true
+    default-statement-timeout: 30
+
+# ⑥ 项目自定义配置
+taskflow:
+  jwt:
+    # HS256 要求密钥不少于 32 字节；此处为 64 位十六进制随机串（32 字节）
+    secret: bc2261a489417854c6173bae6b4ae1fb3d23b85125fdce4bb3b3967f195e6416
+    expire-hours: 12
+  storage:
+    # 附件存储根目录（相对项目根）
+    root: ./data/assets
+
+# ⑦ 开发期打印 Mapper 执行的 SQL
+logging:
+  level:
+    org.ltdz.taskflow.mapper: debug
