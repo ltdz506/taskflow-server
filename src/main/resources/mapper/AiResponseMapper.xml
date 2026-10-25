@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ltdz.taskflow.mapper.AiResponseMapper">
+
+    <sql id="columns">
+        `id`, `task_id`, `response`, `resp_time`
+    </sql>
+
+    <insert id="insert">
+        INSERT INTO `ai_response` (`id`, `task_id`, `response`, `resp_time`)
+        VALUES (#{id}, #{taskId}, #{response}, #{respTime})
+    </insert>
+
+    <select id="selectByTaskId" resultType="AiResponsePo">
+        SELECT <include refid="columns"/>
+        FROM `ai_response`
+        WHERE `task_id` = #{taskId}
+    </select>
+
+    <select id="selectByTaskIds" resultType="AiResponsePo">
+        SELECT <include refid="columns"/>
+        FROM `ai_response`
+        WHERE `task_id` IN
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </select>
+
+    <delete id="deleteByTaskIds">
+        DELETE FROM `ai_response`
+        WHERE `task_id` IN
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </delete>
+
+</mapper>

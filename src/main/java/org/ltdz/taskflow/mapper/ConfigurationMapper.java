@@ -25,5 +25,5 @@ public interface ConfigurationMapper {
     /**
      * 只更新 value 字段（其余字段不可改）。
      */
-    void updateValueById(@Param("id") Long id, @Param("value") String value);
+    int updateValueById(@Param("id") Long id, @Param("value") String value);
 }

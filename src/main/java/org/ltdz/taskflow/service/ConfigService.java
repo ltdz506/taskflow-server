@@ -1,6 +1,7 @@
 package org.ltdz.taskflow.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.ltdz.taskflow.enums.ConfigControlType;
 import org.ltdz.taskflow.mapper.ConfigurationMapper;
 import org.ltdz.taskflow.model.bo.ConfigItemBo;
@@ -24,9 +25,17 @@ import java.util.stream.Collectors;
  * 读：把 configuration.value 里的 JSON 字符串原样返回前端。
  * 写：先读全量、逐条反序列化，只改 value 属性，再序列化回存。
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ConfigService {
+
+    /** 设置项名称（与 configuration.content 对应） */
+    public static final String CONTENT_MAX_TASKS = "单个任务流最大任务数";
+    public static final String CONTENT_MAX_ASSETS = "单任务最大附件数";
+    public static final String CONTENT_MAX_FILE_SIZE = "单文件大小上限";
+    public static final String CONTENT_TIMEOUT = "Agent 单轮操作超时";
+    public static final String CONTENT_RETENTION = "附件保留期限";
 
     private static final int CAN_BE_SET = 1;
 
@@ -50,8 +59,6 @@ public class ConfigService {
 
     /**
      * 全量更新设置值。
-     * <p>
-     * 前端只传纯值，这里先查全量、逐条合并，避免控件描述（type / choose）被覆盖丢失。
      */
     @Transactional
     public void updateUserConfig(Long userId, UpdateUserConfigDto dto) {
@@ -59,7 +66,6 @@ public class ConfigService {
             throw new IllegalArgumentException("设置项不能为空");
         }
 
-        // ① 先取该用户全部配置
         Map<Long, ConfigurationPo> owned = configurationMapper.selectByUserId(userId).stream()
                 .collect(Collectors.toMap(ConfigurationPo::getId, Function.identity()));
 
@@ -76,21 +82,37 @@ public class ConfigService {
                 throw new IllegalArgumentException("设置项不可修改：" + po.getContent());
             }
 
-            // ② 反序列化
             ConfigValueBo valueBo = objectMapper.readValue(po.getValue(), ConfigValueBo.class);
             validate(valueBo, po.getContent(), item.getValue());
-
-            // ③ 只改 value
             valueBo.setValue(item.getValue());
-
-            // ④ 序列化回存
             configurationMapper.updateValueById(po.getId(), objectMapper.writeValueAsString(valueBo));
         }
     }
 
     /**
-     * 按控件类型校验新值（下拉框必须在 choose 内）。
+     * 取某设置项的当前纯值并转成 int；不存在或解析失败时返回默认值。
+     *
+     * @param content 设置项名称（如 {@link #CONTENT_MAX_TASKS}）
      */
+    public int getIntValue(Long userId, String content, int defaultValue) {
+        return configurationMapper.selectByUserId(userId).stream()
+                .filter(po -> content.equals(po.getContent()))
+                .findFirst()
+                .map(po -> parseValue(po.getValue(), defaultValue))
+                .orElse(defaultValue);
+    }
+
+    private int parseValue(String json, int defaultValue) {
+        try {
+            ConfigValueBo bo = objectMapper.readValue(json, ConfigValueBo.class);
+            String raw = bo.getValue();
+            return raw == null ? defaultValue : Integer.parseInt(raw.trim());
+        } catch (Exception e) {
+            log.warn("设置值解析失败，使用默认值 {}：{}", defaultValue, json, e);
+            return defaultValue;
+        }
+    }
+
     private void validate(ConfigValueBo valueBo, String content, String newValue) {
         if (valueBo.getType() == ConfigControlType.SELECT) {
             List<String> choose = valueBo.getChoose();

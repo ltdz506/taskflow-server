@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ltdz.taskflow.mapper.TaskflowMapper">
+
+    <sql id="columns">
+        `id`, `user_id`, `title`, `start_prompt`, `status`, `create_time`, `start_time`, `end_time`
+    </sql>
+
+    <sql id="keywordFilter">
+        <if test="keyword != null and keyword != ''">
+            AND `title` LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </sql>
+
+    <insert id="insert">
+        INSERT INTO `taskflow` (`id`, `user_id`, `title`, `start_prompt`, `status`, `create_time`, `start_time`, `end_time`)
+        VALUES (#{id}, #{userId}, #{title}, #{startPrompt}, #{status}, #{createTime}, #{startTime}, #{endTime})
+    </insert>
+
+    <select id="selectById" resultType="TaskflowPo">
+        SELECT <include refid="columns"/>
+        FROM `taskflow`
+        WHERE `id` = #{id}
+    </select>
+
+    <select id="selectPage" resultType="TaskflowPo">
+        SELECT <include refid="columns"/>
+        FROM `taskflow`
+        WHERE `user_id` = #{userId}
+        <include refid="keywordFilter"/>
+        ORDER BY `create_time` DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countByUser" resultType="long">
+        SELECT COUNT(*)
+        FROM `taskflow`
+        WHERE `user_id` = #{userId}
+        <include refid="keywordFilter"/>
+    </select>
+
+    <select id="selectEarliestByStatus" resultType="TaskflowPo">
+        SELECT <include refid="columns"/>
+        FROM `taskflow`
+        WHERE `user_id` = #{userId} AND `status` = #{status}
+        ORDER BY `create_time` ASC
+        LIMIT 1
+    </select>
+
+    <select id="countByStatus" resultType="long">
+        SELECT COUNT(*)
+        FROM `taskflow`
+        WHERE `user_id` = #{userId} AND `status` = #{status}
+    </select>
+
+    <select id="selectByStatus" resultType="TaskflowPo">
+        SELECT <include refid="columns"/>
+        FROM `taskflow`
+        WHERE `status` = #{status}
+    </select>
+
+    <select id="selectFinished" resultType="TaskflowPo">
+        SELECT <include refid="columns"/>
+        FROM `taskflow`
+        WHERE `status` IN ('COMPLETED', 'DESTROYED') AND `end_time` IS NOT NULL
+    </select>
+
+    <update id="updateStatusAndStartTime">
+        UPDATE `taskflow`
+        SET `status` = #{status}, `start_time` = #{startTime}
+        WHERE `id` = #{id}
+    </update>
+
+    <update id="updateStatusAndEndTime">
+        UPDATE `taskflow`
+        SET `status` = #{status}, `end_time` = #{endTime}
+        WHERE `id` = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM `taskflow` WHERE `id` = #{id}
+    </delete>
+
+</mapper>

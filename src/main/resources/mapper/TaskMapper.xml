@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ltdz.taskflow.mapper.TaskMapper">
+
+    <sql id="columns">
+        `id`, `taskflow_id`, `title`, `request`, `order`, `status`, `settle_time`
+    </sql>
+
+    <insert id="insertBatch">
+        INSERT INTO `task` (`id`, `taskflow_id`, `title`, `request`, `order`, `status`, `settle_time`)
+        VALUES
+        <foreach collection="tasks" item="t" separator=",">
+            (#{t.id}, #{t.taskflowId}, #{t.title}, #{t.request}, #{t.order}, #{t.status}, #{t.settleTime})
+        </foreach>
+    </insert>
+
+    <select id="selectByTaskflowId" resultType="TaskPo">
+        SELECT <include refid="columns"/>
+        FROM `task`
+        WHERE `taskflow_id` = #{taskflowId}
+        ORDER BY `order`
+    </select>
+
+    <select id="selectById" resultType="TaskPo">
+        SELECT <include refid="columns"/>
+        FROM `task`
+        WHERE `id` = #{id}
+    </select>
+
+    <select id="selectFirstByStatus" resultType="TaskPo">
+        SELECT <include refid="columns"/>
+        FROM `task`
+        WHERE `taskflow_id` = #{taskflowId} AND `status` = #{status}
+        ORDER BY `order`
+        LIMIT 1
+    </select>
+
+    <select id="selectLastByTaskflowId" resultType="TaskPo">
+        SELECT <include refid="columns"/>
+        FROM `task`
+        WHERE `taskflow_id` = #{taskflowId}
+        ORDER BY `order` DESC
+        LIMIT 1
+    </select>
+
+    <select id="countByTaskflowId" resultType="int">
+        SELECT COUNT(*) FROM `task` WHERE `taskflow_id` = #{taskflowId}
+    </select>
+
+    <select id="selectIdsByTaskflowId" resultType="long">
+        SELECT `id` FROM `task` WHERE `taskflow_id` = #{taskflowId} ORDER BY `order`
+    </select>
+
+    <update id="updateStatusByTaskflowId">
+        UPDATE `task`
+        SET `status` = #{toStatus}
+        WHERE `taskflow_id` = #{taskflowId} AND `status` = #{fromStatus}
+    </update>
+
+    <update id="updateStatusAndSettleTime">
+        UPDATE `task`
+        SET `status` = #{status}, `settle_time` = #{settleTime}
+        WHERE `id` = #{id}
+    </update>
+
+    <delete id="deleteByTaskflowId">
+        DELETE FROM `task` WHERE `taskflow_id` = #{taskflowId}
+    </delete>
+
+</mapper>

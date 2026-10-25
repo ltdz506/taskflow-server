@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ltdz.taskflow.mapper.AssetMapper">
+
+    <sql id="columns">
+        `id`, `task_id`, `is_input`, `title`, `suffix`, `address`, `update_time`
+    </sql>
+
+    <insert id="insert">
+        INSERT INTO `asset` (`id`, `task_id`, `is_input`, `title`, `suffix`, `address`, `update_time`)
+        VALUES (#{id}, #{taskId}, #{isInput}, #{title}, #{suffix}, #{address}, #{updateTime})
+    </insert>
+
+    <select id="selectById" resultType="AssetPo">
+        SELECT <include refid="columns"/>
+        FROM `asset`
+        WHERE `id` = #{id}
+    </select>
+
+    <select id="selectByTaskId" resultType="AssetPo">
+        SELECT <include refid="columns"/>
+        FROM `asset`
+        WHERE `task_id` = #{taskId}
+        ORDER BY `update_time`
+    </select>
+
+    <select id="selectByTaskIds" resultType="AssetPo">
+        SELECT <include refid="columns"/>
+        FROM `asset`
+        WHERE `task_id` IN
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+        ORDER BY `update_time`
+    </select>
+
+    <select id="countByTaskId" resultType="int">
+        SELECT COUNT(*) FROM `asset` WHERE `task_id` = #{taskId}
+    </select>
+
+    <delete id="deleteByTaskIds">
+        DELETE FROM `asset`
+        WHERE `task_id` IN
+        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </delete>
+
+</mapper>
