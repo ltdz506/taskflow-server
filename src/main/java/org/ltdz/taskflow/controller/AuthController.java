@@ -35,7 +35,7 @@ public class AuthController {
                     .build();
         } catch (Exception e) {
             return ApiResponse.<TokenVo>builder()
-                    .status(ApiCode.UNAUTHORIZED.getCode())
+                    .status(ApiCode.PARAM_ERROR.getCode())
                     .message(e.getMessage())
                     .build();
         }

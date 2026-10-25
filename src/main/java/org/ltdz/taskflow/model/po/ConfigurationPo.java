@@ -26,7 +26,7 @@ public class ConfigurationPo {
     /** 是否可被用户编辑 */
     private Integer canBeSet;
 
-    /** 设置值 */
+    /** 设置值：存 JSON 字符串 {type, choose, value}，结构见 ConfigValueBo */
     private String value;
 
     /** 设置项顺序 */

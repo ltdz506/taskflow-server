@@ -15,6 +15,9 @@ public enum ApiCode {
     /** 成功 */
     SUCCESS(200, "成功"),
 
+    /** 接口因参数错误无法正常运行 **/
+    PARAM_ERROR(400,"参数错误"),
+
     /** 未授权：token 缺失、无效或已过期，前端应退回登录页 */
     UNAUTHORIZED(401, "未授权，请重新登录"),
 

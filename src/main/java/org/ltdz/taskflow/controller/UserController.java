@@ -35,7 +35,7 @@ public class UserController {
                     .build();
         } catch (Exception e) {
             return ApiResponse.<UserVo>builder()
-                    .status(ApiCode.NOT_FOUND.getCode())
+                    .status(ApiCode.PARAM_ERROR.getCode())
                     .message(e.getMessage())
                     .build();
         }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ltdz.taskflow.mapper.ConfigurationMapper">
+
+    <sql id="columns">
+        `id`, `user_id`, `content`, `description`, `is_lived`, `can_be_set`, `value`, `order`
+    </sql>
+
+    <select id="selectByUserId" resultType="ConfigurationPo">
+        SELECT <include refid="columns"/>
+        FROM `configuration`
+        WHERE `user_id` = #{userId}
+        ORDER BY `order`
+    </select>
+
+    <select id="selectById" resultType="ConfigurationPo">
+        SELECT <include refid="columns"/>
+        FROM `configuration`
+        WHERE `id` = #{id}
+    </select>
+
+    <update id="updateValueById">
+        UPDATE `configuration`
+        SET `value` = #{value}
+        WHERE `id` = #{id}
+    </update>
+
+</mapper>
