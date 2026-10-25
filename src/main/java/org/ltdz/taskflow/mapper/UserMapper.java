@@ -19,4 +19,12 @@ public interface UserMapper {
      * @return 匹配的用户；无匹配时返回 null
      */
     UserPo selectByPassword(@Param("password") String password);
+
+    /**
+     * 按 id 查询用户（不返回 password）。
+     *
+     * @param id 用户 id
+     * @return 用户；不存在时返回 null
+     */
+    UserPo selectById(@Param("id") Long id);
 }

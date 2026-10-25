@@ -10,4 +10,10 @@
         LIMIT 1
     </select>
 
+    <select id="selectById" resultType="UserPo">
+        SELECT `id`, `name`, `title`, `index_txt`
+        FROM `user`
+        WHERE `id` = #{id}
+    </select>
+
 </mapper>

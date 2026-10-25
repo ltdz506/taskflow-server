@@ -38,7 +38,7 @@ class AuthServiceTest {
 
     @Test
     void login_shouldReturnTokenWhenPasswordMatches() {
-        when(userMapper.selectByPassword(RIGHT_PASSWORD)).thenReturn(user(USER_ID));
+        when(userMapper.selectByPassword(RIGHT_PASSWORD)).thenReturn(user());
         when(jwtService.createToken(any(JwtPayload.class))).thenReturn("mocked.jwt.token");
 
         String token = authService.login(RIGHT_PASSWORD);
@@ -69,9 +69,9 @@ class AuthServiceTest {
         verify(jwtService, never()).createToken(any());
     }
 
-    private UserPo user(Long id) {
+    private UserPo user() {
         UserPo user = new UserPo();
-        user.setId(id);
+        user.setId(AuthServiceTest.USER_ID);
         user.setPassword(RIGHT_PASSWORD);
         return user;
     }
