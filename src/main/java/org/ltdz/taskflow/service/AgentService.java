@@ -39,6 +39,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AgentService {
 
+    /** 1 输入文件，0 输出文件 */
+    private static final int INPUT_ASSET = 1;
+
     private final TaskflowMapper taskflowMapper;
     private final TaskMapper taskMapper;
     private final AiResponseMapper aiResponseMapper;
@@ -128,6 +131,10 @@ public class AgentService {
         TaskVo taskVo = converter.toTaskVo(task);
         taskVo.setStatus(TaskStatus.RUNNING.name());
         taskVo.setSettleTime(converter.format(now));
+        taskVo.setAssets(assets.stream()
+                .filter(a -> a.getIsInput() != null && a.getIsInput() == INPUT_ASSET)
+                .map(converter::toAssetVo)
+                .toList());
 
         TaskSettledNowVo vo = new TaskSettledNowVo();
         vo.setTask(taskVo);

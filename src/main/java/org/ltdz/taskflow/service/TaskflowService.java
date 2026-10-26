@@ -18,6 +18,7 @@ import org.ltdz.taskflow.model.po.TaskflowPo;
 import org.ltdz.taskflow.model.vo.AiResponseVo;
 import org.ltdz.taskflow.model.vo.CreateTaskflowVo;
 import org.ltdz.taskflow.model.vo.TaskAndResponseVo;
+import org.ltdz.taskflow.model.vo.TaskVo;
 import org.ltdz.taskflow.model.vo.TaskflowDetailVo;
 import org.ltdz.taskflow.model.vo.TaskflowListVo;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
 public class TaskflowService {
 
     private static final int PAGE_SIZE = 5;
+    private static final int INPUT_ASSET = 1;
     private static final int OUTPUT_ASSET = 0;
 
     private final TaskflowMapper taskflowMapper;
@@ -87,7 +89,14 @@ public class TaskflowService {
         List<TaskAndResponseVo> pairs = new ArrayList<>();
         for (TaskPo task : tasks) {
             TaskAndResponseVo pair = new TaskAndResponseVo();
-            pair.setTask(converter.toTaskVo(task));
+
+            // 任务气泡展示的输入附件（isInput = 1）
+            TaskVo taskVo = converter.toTaskVo(task);
+            taskVo.setAssets(assetsByTask.getOrDefault(task.getId(), List.of()).stream()
+                    .filter(a -> a.getIsInput() != null && a.getIsInput() == INPUT_ASSET)
+                    .map(converter::toAssetVo)
+                    .toList());
+            pair.setTask(taskVo);
 
             AiResponsePo response = responseByTask.get(task.getId());
             if (response != null) {
